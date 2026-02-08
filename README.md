@@ -9,7 +9,7 @@
 
 **Advanced Wordle solver with entropy-based AI, real-time analytics, and customizable themes**
 
-### **[→ PLAY NOW ←]https://wordle-entropy-solver-fnzfqdyomikgnf8dxuvnat.streamlit.app)**
+### **[→ PLAY NOW ←](https://wordle-entropy-solver-fnzfqdyomikgnf8dxuvnat.streamlit.app)**
 
 ---
 
