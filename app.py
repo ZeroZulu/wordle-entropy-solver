@@ -27,251 +27,180 @@ import time
 # =====================================================================
 
 st.set_page_config(
-    page_title="Advanced Wordle AI",
-    page_icon="🧠",
+    page_title="Wordle AI Solver",
+    page_icon="🎯",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for modern, colorful UI
-st.markdown("""
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
+# =====================================================================
+# THEME CONFIGURATION
+# =====================================================================
+
+THEMES = {
+    "Ocean Breeze 🌊": {
+        "bg": "#1e3a8a, #0ea5e9, #06b6d4, #14b8a6",
+        "yellow": "#facc15, #eab308",
+        "green": "#22c55e, #16a34a",
+        "dark": "#1e293b, #0f172a",
+        "kb": "#0ea5e9, #0284c7",
+        "kb_hover": "#38bdf8, #0ea5e9",
+    },
+    "Sunset 🌅": {
+        "bg": "#7c3aed, #db2777, #f97316, #f59e0b",
+        "yellow": "#fbbf24, #f59e0b",
+        "green": "#10b981, #059669",
+        "dark": "#1f2937, #111827",
+        "kb": "#8b5cf6, #7c3aed",
+        "kb_hover": "#a78bfa, #8b5cf6",
+    },
+    "Midnight 🌙": {
+        "bg": "#18181b, #3730a3, #1e40af, #1e3a8a",
+        "yellow": "#fde047, #facc15",
+        "green": "#4ade80, #22c55e",
+        "dark": "#09090b, #18181b",
+        "kb": "#6366f1, #4f46e5",
+        "kb_hover": "#818cf8, #6366f1",
+    },
+    "Fresh Mint 🍃": {
+        "bg": "#34d399, #10b981, #38bdf8, #22d3ee",
+        "yellow": "#fbbf24, #f59e0b",
+        "green": "#10b981, #059669",
+        "dark": "#334155, #1e293b",
+        "kb": "#14b8a6, #0d9488",
+        "kb_hover": "#2dd4bf, #14b8a6",
+    },
+    "Royal Purple 👑": {
+        "bg": "#581c87, #7c3aed, #c026d3, #db2777",
+        "yellow": "#fde047, #facc15",
+        "green": "#4ade80, #22c55e",
+        "dark": "#1e1b4b, #0f172a",
+        "kb": "#9333ea, #7e22ce",
+        "kb_hover": "#a855f7, #9333ea",
+    }
+}
+
+def apply_theme(theme_name):
+    """Apply selected theme CSS dynamically"""
+    theme = THEMES.get(theme_name, THEMES["Ocean Breeze 🌊"])
     
-    /* Main theme - Vibrant animated gradient */
-    .main {
-        background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-        background-size: 400% 400%;
-        animation: gradient 15s ease infinite;
-        font-family: 'Poppins', sans-serif !important;
-    }
-    
-    @keyframes gradient {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-    
-    /* Glassmorphism effect */
-    .stApp {
-        backdrop-filter: blur(10px);
-    }
-    
-    /* Wordle tiles - More vibrant colors */
-    .tile-row { 
-        display: flex; 
-        justify-content: center; 
-        gap: 10px; 
-        margin: 10px 0;
-    }
-    .tile {
-        width: 70px;
-        height: 70px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.2rem;
-        font-weight: 800;
-        border-radius: 12px;
-        color: white;
-        text-transform: uppercase;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        font-family: 'Poppins', sans-serif;
-    }
-    .tile:hover { 
-        transform: translateY(-4px) scale(1.05); 
-        box-shadow: 0 12px 24px rgba(0,0,0,0.3);
-    }
-    
-    /* Empty tiles - Modern dark with glow */
-    .tile-empty { 
-        background: linear-gradient(145deg, #2d3748, #1a202c);
-        border: 3px solid #4a5568;
-        box-shadow: 
-            0 8px 16px rgba(0,0,0,0.2),
-            inset 0 2px 4px rgba(255,255,255,0.1);
-    }
-    
-    /* Black/Gray tiles - Sleek dark */
-    .tile-b { 
-        background: linear-gradient(145deg, #1a202c, #0d1117);
-        border: 3px solid #2d3748;
-    }
-    
-    /* Yellow tiles - Bright sun yellow with gradient */
-    .tile-y { 
-        background: linear-gradient(145deg, #fbbf24, #f59e0b);
-        border: 3px solid #d97706;
-        box-shadow: 
-            0 8px 16px rgba(251,191,36,0.4),
-            0 0 20px rgba(251,191,36,0.3);
-    }
-    
-    /* Green tiles - Vibrant emerald with glow */
-    .tile-g { 
-        background: linear-gradient(145deg, #10b981, #059669);
-        border: 3px solid #047857;
-        box-shadow: 
-            0 8px 16px rgba(16,185,129,0.4),
-            0 0 20px rgba(16,185,129,0.3);
-    }
-    
-    /* Keyboard - Glassmorphism style */
-    .keyboard { 
-        display: flex; 
-        flex-direction: column; 
-        align-items: center; 
-        gap: 10px;
-        margin: 25px 0;
-        padding: 20px;
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    .kb-row { 
-        display: flex; 
-        gap: 8px;
-    }
-    .kb-key {
-        min-width: 48px;
-        height: 62px;
-        padding: 0 10px;
-        border: none;
-        border-radius: 10px;
-        background: linear-gradient(145deg, #667eea, #5568d3);
-        color: white;
-        font-weight: 700;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        font-family: 'Poppins', sans-serif;
-    }
-    .kb-key:hover { 
-        background: linear-gradient(145deg, #7c8ef5, #667eea);
-        transform: translateY(-2px) scale(1.05);
-        box-shadow: 0 6px 12px rgba(102,126,234,0.4);
-    }
-    .kb-key:active {
-        transform: translateY(0) scale(0.98);
-    }
-    
-    /* Keyboard color states */
-    .kb-key-g { 
-        background: linear-gradient(145deg, #10b981, #059669);
-        box-shadow: 0 4px 6px rgba(16,185,129,0.3);
-    }
-    .kb-key-g:hover {
-        background: linear-gradient(145deg, #34d399, #10b981);
-        box-shadow: 0 6px 12px rgba(16,185,129,0.4);
-    }
-    
-    .kb-key-y { 
-        background: linear-gradient(145deg, #fbbf24, #f59e0b);
-        box-shadow: 0 4px 6px rgba(251,191,36,0.3);
-    }
-    .kb-key-y:hover {
-        background: linear-gradient(145deg, #fcd34d, #fbbf24);
-        box-shadow: 0 6px 12px rgba(251,191,36,0.4);
-    }
-    
-    .kb-key-b { 
-        background: linear-gradient(145deg, #374151, #1f2937);
-        opacity: 0.6;
-    }
-    .kb-key-wide { min-width: 75px; }
-    
-    /* Cards with glassmorphism */
-    .metric-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        padding: 25px;
-        border-radius: 16px;
-        box-shadow: 
-            0 8px 32px rgba(0,0,0,0.1),
-            inset 0 1px 0 rgba(255,255,255,0.5);
-        border: 1px solid rgba(255,255,255,0.3);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .metric-card:hover {
-        box-shadow: 
-            0 12px 48px rgba(0,0,0,0.15),
-            inset 0 1px 0 rgba(255,255,255,0.6);
-        transform: translateY(-6px);
-    }
-    
-    /* Enhanced flip animation */
-    @keyframes flip {
-        0% { transform: rotateX(0); }
-        50% { transform: rotateX(90deg); opacity: 0.8; }
-        100% { transform: rotateX(0); opacity: 1; }
-    }
-    .tile-flip { animation: flip 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
-    
-    /* Stats with gradient backgrounds */
-    .stat-box {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 20px;
-        border-radius: 16px;
-        text-align: center;
-        margin: 12px 0;
-        box-shadow: 0 8px 16px rgba(102,126,234,0.3);
-        transition: all 0.3s ease;
-    }
-    .stat-box:hover {
-        transform: translateY(-4px) scale(1.02);
-        box-shadow: 0 12px 24px rgba(102,126,234,0.4);
-    }
-    .stat-number {
-        font-size: 2.8rem;
-        font-weight: 800;
-        margin: 0;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    .stat-label {
-        font-size: 1rem;
-        opacity: 0.95;
-        margin-top: 8px;
-        font-weight: 600;
-    }
-    
-    /* Sidebar styling */
-    .css-1d391kg {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-    }
-    
-    /* Button overrides */
-    .stButton > button {
-        background: linear-gradient(145deg, #667eea, #764ba2);
-        color: white;
-        border: none;
-        border-radius: 12px;
-        padding: 12px 24px;
-        font-weight: 700;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(102,126,234,0.3);
-        font-family: 'Poppins', sans-serif;
-    }
-    .stButton > button:hover {
-        background: linear-gradient(145deg, #7c8ef5, #8c5ab8);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(102,126,234,0.4);
-    }
-    
-    /* Headers */
-    h1, h2, h3 {
-        font-family: 'Poppins', sans-serif !important;
-        font-weight: 800 !important;
-        color: white !important;
-        text-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
-    }
-</style>
-""", unsafe_allow_html=True)
+    css = f"""
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
+        
+        /* Main theme - Dynamic gradient */
+        .main {{
+            background: linear-gradient(-45deg, {theme['bg']});
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            font-family: 'Poppins', sans-serif !important;
+        }}
+        
+        @keyframes gradient {{
+            0% {{ background-position: 0% 50%; }}
+            50% {{ background-position: 100% 50%; }}
+            100% {{ background-position: 0% 50%; }}
+        }}
+        
+        .stApp {{ backdrop-filter: blur(10px); }}
+        
+        /* Wordle tiles */
+        .tile-row {{ display: flex; justify-content: center; gap: 10px; margin: 10px 0; }}
+        .tile {{
+            width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem; font-weight: 800; border-radius: 12px; color: white;
+            text-transform: uppercase; box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-family: 'Poppins', sans-serif;
+        }}
+        .tile:hover {{ transform: translateY(-4px) scale(1.05); box-shadow: 0 12px 24px rgba(0,0,0,0.3); }}
+        
+        .tile-empty {{ 
+            background: linear-gradient(145deg, {theme['dark']});
+            border: 3px solid rgba(255,255,255,0.1);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2), inset 0 2px 4px rgba(255,255,255,0.1);
+        }}
+        .tile-b {{ background: linear-gradient(145deg, {theme['dark']}); border: 3px solid rgba(255,255,255,0.05); }}
+        .tile-y {{ 
+            background: linear-gradient(145deg, {theme['yellow']});
+            border: 3px solid rgba(0,0,0,0.2);
+            box-shadow: 0 8px 16px rgba(251,191,36,0.4), 0 0 20px rgba(251,191,36,0.3);
+        }}
+        .tile-g {{ 
+            background: linear-gradient(145deg, {theme['green']});
+            border: 3px solid rgba(0,0,0,0.2);
+            box-shadow: 0 8px 16px rgba(16,185,129,0.4), 0 0 20px rgba(16,185,129,0.3);
+        }}
+        
+        /* Keyboard */
+        .keyboard {{ 
+            display: flex; flex-direction: column; align-items: center; gap: 10px; margin: 25px 0;
+            padding: 20px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
+            border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.2);
+        }}
+        .kb-row {{ display: flex; gap: 8px; }}
+        .kb-key {{
+            min-width: 48px; height: 62px; padding: 0 10px; border: none; border-radius: 10px;
+            background: linear-gradient(145deg, {theme['kb']});
+            color: white; font-weight: 700; font-size: 1rem; cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            font-family: 'Poppins', sans-serif;
+        }}
+        .kb-key:hover {{ 
+            background: linear-gradient(145deg, {theme['kb_hover']});
+            transform: translateY(-2px) scale(1.05); box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }}
+        .kb-key:active {{ transform: translateY(0) scale(0.98); }}
+        
+        .kb-key-g {{ background: linear-gradient(145deg, {theme['green']}); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
+        .kb-key-g:hover {{ transform: translateY(-2px) scale(1.05); }}
+        .kb-key-y {{ background: linear-gradient(145deg, {theme['yellow']}); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }}
+        .kb-key-y:hover {{ transform: translateY(-2px) scale(1.05); }}
+        .kb-key-b {{ background: linear-gradient(145deg, {theme['dark']}); opacity: 0.6; }}
+        .kb-key-wide {{ min-width: 75px; }}
+        
+        /* Cards */
+        .metric-card {{
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 25px;
+            border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.5);
+            border: 1px solid rgba(255,255,255,0.3); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }}
+        .metric-card:hover {{ box-shadow: 0 12px 48px rgba(0,0,0,0.15); transform: translateY(-6px); }}
+        
+        /* Animations */
+        @keyframes flip {{ 0% {{ transform: rotateX(0); }} 50% {{ transform: rotateX(90deg); opacity: 0.8; }} 100% {{ transform: rotateX(0); opacity: 1; }} }}
+        .tile-flip {{ animation: flip 0.6s cubic-bezier(0.4, 0, 0.2, 1); }}
+        
+        /* Stats */
+        .stat-box {{
+            background: linear-gradient(135deg, {theme['kb']});
+            color: white; padding: 20px; border-radius: 16px; text-align: center; margin: 12px 0;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3); transition: all 0.3s ease;
+        }}
+        .stat-box:hover {{ transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 24px rgba(0,0,0,0.4); }}
+        .stat-number {{ font-size: 2.8rem; font-weight: 800; margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }}
+        .stat-label {{ font-size: 1rem; opacity: 0.95; margin-top: 8px; font-weight: 600; }}
+        
+        /* Buttons */
+        .stButton > button {{
+            background: linear-gradient(145deg, {theme['kb']}); color: white; border: none;
+            border-radius: 12px; padding: 12px 24px; font-weight: 700; font-size: 1rem;
+            transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-family: 'Poppins', sans-serif;
+        }}
+        .stButton > button:hover {{
+            background: linear-gradient(145deg, {theme['kb_hover']});
+            transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+        }}
+        
+        /* Headers */
+        h1, h2, h3 {{
+            font-family: 'Poppins', sans-serif !important; font-weight: 800 !important;
+            color: white !important; text-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+        }}
+    </style>
+    """
+    st.markdown(css, unsafe_allow_html=True)
+
 
 WORDLEN = 5
 MAX_ATTEMPTS = 6
@@ -888,12 +817,35 @@ def update_stats(guesses: int):
 # =====================================================================
 
 def main():
-    # Initialize
+    # Initialize theme
+    if 'theme' not in st.session_state:
+        st.session_state.theme = "Ocean Breeze 🌊"
+    
+    # Apply selected theme
+    apply_theme(st.session_state.theme)
+    
+    # Initialize game
     if 'secret_word' not in st.session_state:
         initialize_game()
     
     # Sidebar
     with st.sidebar:
+        # Theme Selector - FIRST
+        st.subheader("🎨 Theme")
+        selected_theme = st.selectbox(
+            "Choose Color Scheme",
+            list(THEMES.keys()),
+            index=list(THEMES.keys()).index(st.session_state.theme),
+            help="Change the app's color theme"
+        )
+        
+        if selected_theme != st.session_state.theme:
+            st.session_state.theme = selected_theme
+            st.rerun()
+        
+        st.markdown("---")
+        
+        # Game Controls
         st.title("🎮 Game Controls")
         
         if st.button("🔄 New Game", use_container_width=True):
@@ -922,7 +874,7 @@ def main():
         )
     
     # Main content
-    st.title("🧠 Advanced Wordle AI")
+    st.title("Wordle AI Solver")
     st.markdown("*Powered by Information Theory & Machine Learning*")
     
     if game_mode == "Play":
