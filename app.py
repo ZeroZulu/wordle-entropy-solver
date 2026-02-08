@@ -33,114 +33,242 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for beautiful UI
+# Custom CSS for modern, colorful UI
 st.markdown("""
 <style>
-    /* Main theme */
-    .main { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
     
-    /* Wordle tiles */
+    /* Main theme - Vibrant animated gradient */
+    .main {
+        background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
+        font-family: 'Poppins', sans-serif !important;
+    }
+    
+    @keyframes gradient {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    /* Glassmorphism effect */
+    .stApp {
+        backdrop-filter: blur(10px);
+    }
+    
+    /* Wordle tiles - More vibrant colors */
     .tile-row { 
         display: flex; 
         justify-content: center; 
-        gap: 8px; 
-        margin: 8px 0;
+        gap: 10px; 
+        margin: 10px 0;
     }
     .tile {
-        width: 62px;
-        height: 62px;
+        width: 70px;
+        height: 70px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 2rem;
+        font-size: 2.2rem;
         font-weight: 800;
-        border-radius: 8px;
+        border-radius: 12px;
         color: white;
         text-transform: uppercase;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-family: 'Poppins', sans-serif;
     }
-    .tile:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.2); }
-    .tile-empty { background: #2d3748; border: 3px solid #4a5568; }
-    .tile-b { background: #1a202c; border: 3px solid #2d3748; }
-    .tile-y { background: #d69e2e; border: 3px solid #b7791f; }
-    .tile-g { background: #48bb78; border: 3px solid #38a169; }
+    .tile:hover { 
+        transform: translateY(-4px) scale(1.05); 
+        box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+    }
     
-    /* Keyboard */
+    /* Empty tiles - Modern dark with glow */
+    .tile-empty { 
+        background: linear-gradient(145deg, #2d3748, #1a202c);
+        border: 3px solid #4a5568;
+        box-shadow: 
+            0 8px 16px rgba(0,0,0,0.2),
+            inset 0 2px 4px rgba(255,255,255,0.1);
+    }
+    
+    /* Black/Gray tiles - Sleek dark */
+    .tile-b { 
+        background: linear-gradient(145deg, #1a202c, #0d1117);
+        border: 3px solid #2d3748;
+    }
+    
+    /* Yellow tiles - Bright sun yellow with gradient */
+    .tile-y { 
+        background: linear-gradient(145deg, #fbbf24, #f59e0b);
+        border: 3px solid #d97706;
+        box-shadow: 
+            0 8px 16px rgba(251,191,36,0.4),
+            0 0 20px rgba(251,191,36,0.3);
+    }
+    
+    /* Green tiles - Vibrant emerald with glow */
+    .tile-g { 
+        background: linear-gradient(145deg, #10b981, #059669);
+        border: 3px solid #047857;
+        box-shadow: 
+            0 8px 16px rgba(16,185,129,0.4),
+            0 0 20px rgba(16,185,129,0.3);
+    }
+    
+    /* Keyboard - Glassmorphism style */
     .keyboard { 
         display: flex; 
         flex-direction: column; 
         align-items: center; 
-        gap: 8px;
-        margin: 20px 0;
+        gap: 10px;
+        margin: 25px 0;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
     .kb-row { 
         display: flex; 
-        gap: 6px;
+        gap: 8px;
     }
     .kb-key {
-        min-width: 43px;
-        height: 58px;
-        padding: 0 8px;
+        min-width: 48px;
+        height: 62px;
+        padding: 0 10px;
         border: none;
-        border-radius: 8px;
-        background: #4a5568;
+        border-radius: 10px;
+        background: linear-gradient(145deg, #667eea, #5568d3);
         color: white;
         font-weight: 700;
-        font-size: 0.9rem;
+        font-size: 1rem;
         cursor: pointer;
-        transition: all 0.2s;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        font-family: 'Poppins', sans-serif;
     }
     .kb-key:hover { 
-        background: #718096; 
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        background: linear-gradient(145deg, #7c8ef5, #667eea);
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 6px 12px rgba(102,126,234,0.4);
     }
-    .kb-key-g { background: #48bb78; }
-    .kb-key-y { background: #d69e2e; }
-    .kb-key-b { background: #2d3748; }
-    .kb-key-wide { min-width: 65px; }
+    .kb-key:active {
+        transform: translateY(0) scale(0.98);
+    }
     
-    /* Cards */
+    /* Keyboard color states */
+    .kb-key-g { 
+        background: linear-gradient(145deg, #10b981, #059669);
+        box-shadow: 0 4px 6px rgba(16,185,129,0.3);
+    }
+    .kb-key-g:hover {
+        background: linear-gradient(145deg, #34d399, #10b981);
+        box-shadow: 0 6px 12px rgba(16,185,129,0.4);
+    }
+    
+    .kb-key-y { 
+        background: linear-gradient(145deg, #fbbf24, #f59e0b);
+        box-shadow: 0 4px 6px rgba(251,191,36,0.3);
+    }
+    .kb-key-y:hover {
+        background: linear-gradient(145deg, #fcd34d, #fbbf24);
+        box-shadow: 0 6px 12px rgba(251,191,36,0.4);
+    }
+    
+    .kb-key-b { 
+        background: linear-gradient(145deg, #374151, #1f2937);
+        opacity: 0.6;
+    }
+    .kb-key-wide { min-width: 75px; }
+    
+    /* Cards with glassmorphism */
     .metric-card {
-        background: white;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        transition: all 0.3s;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 
+            0 8px 32px rgba(0,0,0,0.1),
+            inset 0 1px 0 rgba(255,255,255,0.5);
+        border: 1px solid rgba(255,255,255,0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .metric-card:hover {
-        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-        transform: translateY(-4px);
+        box-shadow: 
+            0 12px 48px rgba(0,0,0,0.15),
+            inset 0 1px 0 rgba(255,255,255,0.6);
+        transform: translateY(-6px);
     }
     
-    /* Animations */
+    /* Enhanced flip animation */
     @keyframes flip {
         0% { transform: rotateX(0); }
-        50% { transform: rotateX(90deg); }
-        100% { transform: rotateX(0); }
+        50% { transform: rotateX(90deg); opacity: 0.8; }
+        100% { transform: rotateX(0); opacity: 1; }
     }
-    .tile-flip { animation: flip 0.6s ease; }
+    .tile-flip { animation: flip 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
     
-    /* Stats */
+    /* Stats with gradient backgrounds */
     .stat-box {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 15px;
-        border-radius: 10px;
+        padding: 20px;
+        border-radius: 16px;
         text-align: center;
-        margin: 10px 0;
+        margin: 12px 0;
+        box-shadow: 0 8px 16px rgba(102,126,234,0.3);
+        transition: all 0.3s ease;
+    }
+    .stat-box:hover {
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 12px 24px rgba(102,126,234,0.4);
     }
     .stat-number {
-        font-size: 2.5rem;
+        font-size: 2.8rem;
         font-weight: 800;
         margin: 0;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     .stat-label {
-        font-size: 0.9rem;
-        opacity: 0.9;
-        margin-top: 5px;
+        font-size: 1rem;
+        opacity: 0.95;
+        margin-top: 8px;
+        font-weight: 600;
+    }
+    
+    /* Sidebar styling */
+    .css-1d391kg {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+    }
+    
+    /* Button overrides */
+    .stButton > button {
+        background: linear-gradient(145deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-weight: 700;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+        font-family: 'Poppins', sans-serif;
+    }
+    .stButton > button:hover {
+        background: linear-gradient(145deg, #7c8ef5, #8c5ab8);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(102,126,234,0.4);
+    }
+    
+    /* Headers */
+    h1, h2, h3 {
+        font-family: 'Poppins', sans-serif !important;
+        font-weight: 800 !important;
+        color: white !important;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
     }
 </style>
 """, unsafe_allow_html=True)
