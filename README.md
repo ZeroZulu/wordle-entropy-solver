@@ -19,7 +19,7 @@
 
 ---
 
-<img src="assets/wordle-screenshot.png" alt="Preview" width="90%">
+<img src="assets/screenshot.png" alt="Preview" width="90%">
 
 *Shannon entropy optimization • Real-time analytics • User-selectable themes*
 
